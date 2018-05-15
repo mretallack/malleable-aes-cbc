@@ -47,6 +47,25 @@ void bitWiseXor(const unsigned char *AStr, const unsigned char *BStr, int len, u
 	}
 }
 
+void attack(unsigned char *iv)
+{
+	// ok, calc A^B
+	// we know A and B
+
+	const char *AStr = "               1";
+	const char *BStr = "           10000";
+
+	unsigned char resAB[32];
+
+	bitWiseXor(AStr, BStr, 16, resAB);
+
+	bitWiseXor(resAB, iv, 16, iv);
+
+	printf("modified iv is:\n");
+	BIO_dump_fp (stdout, (const char *)iv, 16);
+
+}
+
 int main (void)
 {
 
@@ -77,25 +96,14 @@ int main (void)
 	printf("Ciphertext is:\n");
 	BIO_dump_fp (stdout, (const char *)ciphertext, plaintext_len);
 
-	// ok, calc A^B
-	// we know A and B
-
-	const char *AStr = "               1";
-	const char *BStr = "           10000";
-
-	unsigned char resAB[32];
-
-	bitWiseXor(AStr, BStr, 16, resAB);
-
+	// and refresh IV because the encrypt will mod the IV 
 	memcpy(tmp_iv, iv, 16);
 
-	bitWiseXor(resAB, tmp_iv, 16, tmp_iv);
+	printf("iv is:\n");
+	BIO_dump_fp (stdout, (const char *)tmp_iv, 16);
 
-	printf("mod iv is:\n");
-	BIO_dump_fp (stdout, (const char *)iv, 16);
-
-	printf("Ciphertext after change is:\n");
-	BIO_dump_fp (stdout, (const char *)ciphertext, plaintext_len);
+	// ok, perform the attack on the IV here
+	attack(tmp_iv);
 
 	// Decrypt the ciphertext 
 	decrypt(ciphertext, plaintext_len, key, tmp_iv, decryptedtext);

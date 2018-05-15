@@ -3,5 +3,5 @@ LDFLAGS+=-lcrypto
 
 CFLAGS+=-g
 
-test: test.c
+malleable: malleable.c
 
